@@ -1,6 +1,6 @@
 import cv2
-import numpy as np
 import os
+import numpy as np
 from tkinter import Tk, Button, messagebox
 
 class Training:
@@ -29,7 +29,7 @@ class Training:
 
         for image in path:
             img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
-            imageNp = np.array(img, 'uint8')
+            imageNp = cv2.resize(img, (550, 550))
             id = int(os.path.split(image)[1].split('.')[1])
 
             faces.append(imageNp)
@@ -38,9 +38,9 @@ class Training:
         ids = np.array(ids)
 
         # Train the classifier
-        clf = cv2.face.LBPHFaceRecognizer_create()
-        clf.train(faces, ids)
-        clf.write("classifier.xml")
+        recognizer = cv2.face.LBPHFaceRecognizer_create() if cv2.__version__.startswith('3') else cv2.face.LBPHFaceRecognizer_create()
+        recognizer.train(faces, ids)
+        recognizer.save("classifier.yml")  
 
         messagebox.showinfo("Result", "Training Datasets Completed!!")
 
