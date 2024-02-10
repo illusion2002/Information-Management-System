@@ -1,7 +1,8 @@
 import cv2
-import os
 import numpy as np
+import os
 from tkinter import Tk, Button, messagebox
+from PIL import Image,ImageTk
 
 class Training:
     def __init__(self, root):
@@ -12,7 +13,7 @@ class Training:
         b1_l = Button(
             self.root,
             text="Train Data",
-            command=self.train_classifier,
+            command=self.train_image,
             cursor="hand2",
             font=("times new roman", 20, "bold"),
             bg="maroon",
@@ -20,31 +21,28 @@ class Training:
         )
         b1_l.pack(pady=20)
 
-    def train_classifier(self):
-        data_dir = "Data"
-        path = [os.path.join(data_dir, file) for file in os.listdir(data_dir)]
+ ########## Training images LBPH algorithm ################
+    def train_image(self):
+        data_dir = "data"
+        path = [os.path.join(data_dir,file)for file in os.listdir(data_dir)]
 
         faces = []
         ids = []
-
+        
         for image in path:
-            img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
-            imageNp = cv2.resize(img, (550, 550))
+            img= Image.open(image).convert('L')         ## Converting to grayscale
+            imageNp = np.array(img,'uint8')
             id = int(os.path.split(image)[1].split('.')[1])
 
             faces.append(imageNp)
             ids.append(id)
-
+            cv2.imshow("Training",imageNp)
+            cv2.waitKey(1)==13
         ids = np.array(ids)
-
-        # Train the classifier
-        recognizer = cv2.face.LBPHFaceRecognizer_create() if cv2.__version__.startswith('3') else cv2.face.LBPHFaceRecognizer_create()
-        recognizer.train(faces, ids)
-        recognizer.save("classifier.yml")  
-
-        messagebox.showinfo("Result", "Training Datasets Completed!!")
-
-if __name__ == "__main__":
-    root = Tk()
-    obj = Training(root)
-    root.mainloop()
+        
+        ########### Training classifier ##########3
+        clf = cv2.face.LBPHFaceRecognizer_create()
+        clf.train(faces,ids)
+        clf.write("classifier.xml")
+        cv2.destroyAllWindows()
+        messagebox.showinfo("Result","Training dataset completed!!")
