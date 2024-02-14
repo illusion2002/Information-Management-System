@@ -85,7 +85,11 @@ class attendance:
           # Use DateEntry instead of ttk.Entry for date entry
         cal = DateEntry(current_course, selectmode='day' , font=("times new roman", 12, "bold"))
         cal.grid(row=1, column=1, padx=2, pady=5, sticky="w")
-         
+         # Bind an event to capture date selection
+        cal.bind("<<DateEntrySelected>>", self.get_selected_date)
+    
+   
+   
        
   
         #Student Imformation
@@ -135,9 +139,8 @@ class attendance:
         
         ######.........................................................................................................................................................................................
         #list button
-        listbtn=Button(current_course,text="List All",font=("times now roman",13,"bold"),bd=3,relief=RIDGE,fg="white",bg="grey",activeforeground="black",activebackground="silver")
-        listbtn.grid(row=1,column=5,padx=5,pady=2,sticky=W)#command=self.fetch_data,
-
+        listbtn=Button(current_course,text="List All",command=self.fetch_data,font=("times now roman",13,"bold"),bd=3,relief=RIDGE,fg="white",bg="grey",activeforeground="black",activebackground="silver")
+        listbtn.grid(row=1,column=5,padx=5,pady=2,sticky=W)
        
   
        #Button Frame
@@ -153,7 +156,7 @@ class attendance:
         update_btn.grid(row=1,column=0,padx=5,pady=5)
 
         #Import DB Button
-        add_btn = Button(btn_frame,text="Import to Database",command=self.importDB,width=70,font=("times new roman",13,"bold"),bg="white",fg="black",activeforeground="White",activebackground="silver")
+        add_btn = Button(btn_frame,text="Import to Database",command=self.import_csv_to_mysql,width=70,font=("times new roman",13,"bold"),bg="white",fg="black",activeforeground="White",activebackground="silver")
         add_btn.grid(row=2,column=0,padx=5,pady=5)
 
         #Update Button
@@ -168,26 +171,26 @@ class attendance:
         right_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Student Details",font=("times new roman",12,"bold"))
         right_frame.place(x=780,y=10,width=710,height=700)
 
-        ####### Searching system #########
-        Search_frame = LabelFrame(right_frame,bd=2,bg="white",relief=RIDGE,text="Search System",font=("times new roman",15,"bold"))
-        Search_frame.place(x=10,y=10,width=680,height=70)  
+        # ####### Searching system #########
+        # Search_frame = LabelFrame(right_frame,bd=2,bg="white",relief=RIDGE,text="Search System",font=("times new roman",15,"bold"))
+        # Search_frame.place(x=10,y=10,width=680,height=70)  
 
-        Search_label = Label(Search_frame,text="Search By:",font=("times new roman",12,"bold"),bg="grey",fg="white")
-        Search_label.grid(row=0,column=0,padx=2,pady=5,sticky=W)
+        # Search_label = Label(Search_frame,text="Search By:",font=("times new roman",12,"bold"),bg="grey",fg="white")
+        # Search_label.grid(row=0,column=0,padx=2,pady=5,sticky=W)
 
-        #search combo box
-        self.var_combo_search = StringVar()
-        search_combo = ttk.Combobox(Search_frame,textvariable=self.var_combo_search,font=("times new roman",12,"bold"),width=17,state="read only")
-        search_combo["values"]=("Select ","Roll","Name","Date","Time")
-        search_combo.current(0)
-        search_combo.grid(row=0,column=1,padx=2,pady=10,sticky=W)
+        # #search combo box
+        # self.var_combo_search = StringVar()
+        # search_combo = ttk.Combobox(Search_frame,textvariable=self.var_combo_search,font=("times new roman",12,"bold"),width=17,state="read only")
+        # search_combo["values"]=("Select ","Roll","Name","Date","Time")
+        # search_combo.current(0)
+        # search_combo.grid(row=0,column=1,padx=2,pady=10,sticky=W)
         
-        self.var_search = StringVar()
-        search_entry=ttk.Entry(Search_frame,textvariable=self.var_search,width=15,font=("times new roman",13,"bold"))
-        search_entry.grid(row=0,column=2,padx=2,pady=10,sticky=W)
+        # self.var_search = StringVar()
+        # search_entry=ttk.Entry(Search_frame,textvariable=self.var_search,width=15,font=("times new roman",13,"bold"))
+        # search_entry.grid(row=0,column=2,padx=2,pady=10,sticky=W)
 
-        search_btn = Button(Search_frame,text="Search",width=12,command=self.search_data,font=("times new roman",13,"bold"),bg="Grey",fg="white")
-        search_btn.grid(row=0,column=3,padx=5,pady=5)
+        # search_btn = Button(Search_frame,text="Search",command=self.search_data,width=12,font=("times new roman",13,"bold"),bg="Grey",fg="white")
+        # search_btn.grid(row=0,column=3,padx=5,pady=5)
   
         ###########  Table Frame ##########
 
@@ -230,6 +233,10 @@ class attendance:
         self.student_table.bind("<ButtonRelease>",self.get_cursor)
          #self.fetch_data()
         
+    def get_selected_date(self, event):
+            selected_date = event.widget.get_date()
+            self.var_date.set(selected_date)
+
     def get_cursor(self,event=""):
             cursor_focus = self.student_table.focus()
             content = self.student_table.item(cursor_focus)  #item takes the content.
@@ -243,7 +250,9 @@ class attendance:
             self.var_time.set(data[5]),
             self.var_date.set(data[6]),
             self.attendance_id.set(data[7])   
-
+        
+    # def importDB(self):
+    #    ()
     def reset_data(self):
         self.var_atten.set("")
         self.var_roll.set("")
@@ -254,6 +263,7 @@ class attendance:
         self.var_date.set("")
         self.attendance_id.set("")
 
+################################################searching data###########################################################
     # def search_data(self):
     #     if self.var_combo_search.get() == "" or self.var_search.get() == "":
     #         messagebox.showerror("Error", "Please select an option")
@@ -270,19 +280,13 @@ class attendance:
     #             # Get the class value and section value from the variables
     #             class_value = self.var_class.get()
     #             section_value = self.var_section.get()
-    #             date_value = self.var_date.get()
 
     #             # Construct the SQL query with filter conditions for class and section
-    #             query = """
-    #                     SELECT student.Class,student.Section,student.Name,student.Roll, attendance.time, attendance.date, attendance.status
-    #                     FROM student 
-    #                     LEFT JOIN assignment ON student.Student_id = attendance.STUDENT_ID 
-    #                     WHERE {} = %s AND student.Class = %s AND student.Section = %s AND attendance.date= %s
-    #                     """.format(self.var_combo_search.get())
+    #             query = "SELECT * FROM student WHERE {} = %s AND Class = %s AND Section = %s".format(self.var_combo_search.get())
 
     #             # Pass the search value, class value, and section value as parameters to the execute method
     #             search_value = self.var_search.get()
-    #             my_cursor.execute(query, (search_value, class_value, section_value , date_value))
+    #             my_cursor.execute(query, (search_value, class_value, section_value))
 
     #             rows = my_cursor.fetchall()
 
@@ -305,60 +309,34 @@ class attendance:
     #                 my_cursor.close()
     #                 conn.close()
 
-      
-    def search_data(self):
-        if self.var_combo_search.get() == "" or self.var_search.get() == "":
-            messagebox.showerror("Error", "Please select an option")
-        else:
-            try:
-                # Connect to the database
-                conn = mysql.connector.connect(
-                    host="localhost",
-                    username="root",
-                    password="qwerty123",
-                    database="admin_minorproject"
-                )
-                my_cursor = conn.cursor()
+######################################fetch data from database############################################################### 
+    def fetch_data(self):
+        try:
+            conn = mysql.connector.connect(host="localhost",username="root",password="qwerty123",database="admin_minorproject")
+            my_cursor = conn.cursor()
 
-                # Get the class value, section value, and date value from the variables
-                class_value = self.var_class.get()
-                section_value = self.var_section.get()
-                date_value = self.var_date.get()  # Get the selected date
+            # Get the string values from StringVar objects
+            class_value = self.var_class.get()
+            section_value = self.var_section.get()
+            date_value= self.var_date.get()
+            # Execute the SQL query with parameters
+            my_cursor.execute("SELECT * FROM attendance WHERE class = %s AND section = %s AND date = %s",(class_value,section_value,date_value))
 
-                # Construct the SQL query with filter conditions for class, section, and date
-                query = """
-                        SELECT student.Class,student.Section,student.Name,student.Roll, attendance.time, attendance.date, attendance.status
-                        FROM student 
-                        LEFT JOIN assignment ON student.Student_id = attendance.STUDENT_ID 
-                        WHERE {} = %s AND student.Class = %s AND student.Section = %s AND attendance.date= %s
-                        """.format(self.var_combo_search.get())
+            data = my_cursor.fetchall()
+            print(data)
 
-                # Pass the search value, class value, section value, and date value as parameters to the execute method
-                search_value = self.var_search.get()
-                my_cursor.execute(query, (search_value, class_value, section_value, date_value))
-
-                rows = my_cursor.fetchall()
-
-                if len(rows) != 0:
-                    self.student_table.delete(*self.student_table.get_children())
-                    for row in rows:
-                        self.student_table.insert("", END, values=row)
-                    conn.commit()
-                else:
-                    messagebox.showinfo("No Data", "No matching records found")
-
-            except mysql.connector.Error as e:
-                messagebox.showerror("Error", f"Database error: {e}")
-
-            except Exception as es:
-                messagebox.showerror("Error", f"An error occurred: {es}")
-
-            finally:
-                if 'conn' in locals() and conn.is_connected():
-                    my_cursor.close()
-                    conn.close()
-
-
+            if len(data) != 0:
+                self.student_table.delete(*self.student_table.get_children())
+                for row in data:
+                    self.student_table.insert("", END, values=row)
+                conn.commit()
+        except mysql.connector.Error as e:
+            print(f"Error fetching data: {e}")
+        finally:
+            if conn.is_connected():
+                my_cursor.close()
+                conn.close()
+        
         #### fetch data ###
     def fetchData(self,rows):
         self.student_table.delete(*self.student_table.get_children())
@@ -375,41 +353,44 @@ class attendance:
             for i in csvread:
                 mydata.append(i)
             self.fetchData(mydata)
-    
-    def importDB(self):
-        try:
-            if len(mydata) < 1:
-                messagebox.showerror("No Data", "No data found to import", parent=self.root)
-                return False
 
+    # Function to import data from CSV to MySQL
+    def import_csv_to_mysql(self):
+        try:
             # Connect to the MySQL database
             conn = mysql.connector.connect(
-                host="localhost",
-                username="root",
-                password="qwerty123",
-                database="admin_minorproject"
+                host='localhost',
+                user='root',
+                password='qwerty123',
+                database='admin_minorproject'
             )
-            my_cursor = conn.cursor()
+        
+            cursor = conn.cursor()
+            csv_file = 'attend.csv'
+            table_name = 'attendance'
+            # Read the CSV file
+            with open(csv_file, 'r') as file:
+                csv_reader = csv.reader(file)
+                next(csv_reader)  # Skip the header row if it exists
 
-            # Iterate over the data and insert records into the database
-            for row in mydata:
-                # Assuming mydata contains rows in the format (roll, name, class, section, time, date, status)
-                query = "INSERT INTO attendace (atten_id, roll, name, class, section, time, date, status) VALUES (%s, %s, %s, %s, %s, %s, %s , %s)"
-                my_cursor.execute(query, row)
+                # Iterate over the CSV data and insert into the database
+                for row in csv_reader:
+                    query = f"INSERT INTO {table_name} (atten_id, roll, name, class,section,time,date,status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(query, row)  # Assuming the order of columns in CSV matches the table
 
-            # Commit the changes to the database
+            # Commit the transaction
             conn.commit()
+            messagebox.showinfo("IMPORT", "Successfully imported to database", parent=self.root)
 
+        except mysql.connector.Error as err:
+            print(f"MySQL error: {err}")
+
+        finally:
             # Close the cursor and connection
-            my_cursor.close()
-            conn.close()
-
-            messagebox.showinfo("Success", "Data imported from CSV file and inserted into MySQL database successfully!")
-        except mysql.connector.Error as e:
-            messagebox.showerror("Error", f"Database error: {e.msg}", parent=self.root)
-        except Exception as ex:
-            messagebox.showerror("Error", f"An error occurred: {str(ex)}", parent=self.root)
-            
+            if 'conn' in locals() and conn.is_connected():
+                cursor.close()
+                conn.close()
+                
     def exportCsv(self):
                 try:
                     if len(mydata)<1:
